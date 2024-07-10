@@ -1,7 +1,7 @@
 name: space_fortress_game_package
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+homepage: https://github.com/game-changer-solutions/space_fortress_game_package
 
 environment:
   sdk: ">=3.4.3 <4.0.0"
