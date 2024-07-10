@@ -150,7 +150,7 @@ class _MainMenuState extends State<MainMenu> {
               Text(
                 "${translation(context).codeMines}\n${foeMinesCode.join(",")}",
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18, color: Colors.white),
               ),
             ],
           ),

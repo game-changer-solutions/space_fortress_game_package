@@ -5,7 +5,6 @@ import 'package:space_fortress_game_package/widgets/overlays/game_over_menu.dart
 import 'package:space_fortress_game_package/widgets/overlays/pause_button.dart';
 import 'package:space_fortress_game_package/widgets/overlays/pause_menu.dart';
 
-
 class GamePlay extends StatelessWidget {
   GamePlay({Key? key}) : super(key: key);
 

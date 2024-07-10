@@ -19,7 +19,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-           Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(vertical: 50.0),
               child: Text(
                 translation(context).settings,
@@ -37,7 +37,10 @@ class _SettingsMenuState extends State<SettingsMenu> {
               ),
             ),
             SwitchListTile(
-                title: Text(translation(context).soundsEffects),
+                title: Text(
+                  translation(context).soundsEffects,
+                  style: const TextStyle(color: Colors.white),
+                ),
                 value: settings.soundEffects,
                 onChanged: (newValue) {
                   setState(() {
