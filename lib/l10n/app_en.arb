@@ -1,0 +1,21 @@
+{
+  "username": "Enter Username",
+  "usernameRequiredField": "Please Enter a Username!",
+  "playButton": "Play",
+  "settings": "Settings",
+  "theCodeOfFoeMinesIs": "The code of foe mines is",
+  "soundEffects": "Sound Effects",
+  "points": "Points",
+  "shots": "Shots",
+  "vlcty": "VLCTY",
+  "iff": "IFF",
+  "cntrl": "CNTRL",
+  "intrvl": "INTRVL",
+  "speed": "SPEED",
+  "paused": "Paused",
+  "resumeButton": "Resume",
+  "restartButton": "Restart",
+  "exitButton": "Exit",
+  "gameOver": "Game Over",
+  "changeLanguage": "ع"
+}
