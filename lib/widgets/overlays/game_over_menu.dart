@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:space_fortress/game/game.dart';
-import 'package:space_fortress/language_constants.dart';
-import 'package:space_fortress/screens/main_menu.dart';
-import 'package:space_fortress/widgets/overlays/pause_button.dart';
+import 'package:space_fortress_game_package/game/game.dart';
+import 'package:space_fortress_game_package/language_constants.dart';
+import 'package:space_fortress_game_package/screens/main_menu.dart';
+import 'package:space_fortress_game_package/widgets/overlays/pause_button.dart';
 
 class GameOverMenu extends StatelessWidget {
   static const String id = "GameOverMenu";

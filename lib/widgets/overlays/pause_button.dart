@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:space_fortress/game/game.dart';
-import 'package:space_fortress/widgets/overlays/pause_menu.dart';
+import 'package:space_fortress_game_package/game/game.dart';
+import 'package:space_fortress_game_package/widgets/overlays/pause_menu.dart';
 
 class PauseButton extends StatelessWidget {
   static const String id = "PauseButton";
