@@ -44,7 +44,7 @@ class PauseMenu extends StatelessWidget {
                 gameRef.playerCanFire = true;
               },
               child: Text(
-                translation(context).resumeButton,
+                translation(context).resume,
               ),
             ),
           ),
@@ -61,7 +61,7 @@ class PauseMenu extends StatelessWidget {
                 gameRef.resumeEngine();
               },
               child: Text(
-                translation(context).restartButton,
+                translation(context).restart,
               ),
             ),
           ),
@@ -83,7 +83,7 @@ class PauseMenu extends StatelessWidget {
                 );
               },
               child: Text(
-                translation(context).exitButton,
+                translation(context).exit,
               ),
             ),
           ),

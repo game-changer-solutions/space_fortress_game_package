@@ -122,7 +122,7 @@ class _MainMenuState extends State<MainMenu> {
                     }
                   },
                   child: Text(
-                    translation(context).playButton,
+                    translation(context).play,
                   ),
                 ),
               ),
@@ -148,7 +148,7 @@ class _MainMenuState extends State<MainMenu> {
                 height: 10,
               ),
               Text(
-                "${translation(context).theCodeOfFoeMinesIs}\n${foeMinesCode.join(",")}",
+                "${translation(context).codeMines}\n${foeMinesCode.join(",")}",
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 18),
               ),

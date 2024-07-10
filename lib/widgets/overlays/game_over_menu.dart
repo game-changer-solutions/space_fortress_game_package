@@ -44,7 +44,7 @@ class GameOverMenu extends StatelessWidget {
                 gameRef.resumeEngine();
               },
               child: Text(
-                translation(context).restartButton,
+                translation(context).restart,
               ),
             ),
           ),
@@ -66,7 +66,7 @@ class GameOverMenu extends StatelessWidget {
                 );
               },
               child: Text(
-                translation(context).exitButton,
+                translation(context).exit,
               ),
             ),
           ),

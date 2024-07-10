@@ -37,7 +37,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
               ),
             ),
             SwitchListTile(
-                title: Text(translation(context).soundEffects),
+                title: Text(translation(context).soundsEffects),
                 value: settings.soundEffects,
                 onChanged: (newValue) {
                   setState(() {
