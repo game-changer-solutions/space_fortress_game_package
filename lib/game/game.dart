@@ -699,7 +699,6 @@ class SpaceFortressGame extends FlameGame
               : usernameInput.text,
         ).toJson())
         .then((value) {
-          
       if (integrationInitialized && userId != null) {
         bkl.Backendless.data.of("SpaceFortressSessions").addRelation(
             value!["objectId"], "userId",
