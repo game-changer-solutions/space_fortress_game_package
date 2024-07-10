@@ -1,10 +1,10 @@
 {
   "username": "ادخل اسم المستخدم",
   "usernameRequiredField": "من فضلك قم بادخال اسم المستخدم",
-  "playButton": "ابدأ",
+  "play": "ابدأ",
   "settings": "الاعدادات",
-  "theCodeOfFoeMinesIs": "كود الالغام هو",
-  "soundEffects": "المؤثرات الصوتية",
+  "codeMines": "كود الالغام هو",
+  "soundsEffects": "المؤثرات الصوتية",
   "points": "النقاط",
   "shots": "الطلقات",
   "vlcty": "التسارع",
@@ -13,9 +13,9 @@
   "intrvl": "وقت الاطلاق",
   "speed": "السرعة",
   "paused": "قائمة الايقاف",
-  "resumeButton": "استئناف",
-  "restartButton": "اعادة التشغيل",
-  "exitButton": "خروج",
+  "resume": "استئناف",
+  "restart": "اعادة التشغيل",
+  "exit": "خروج",
   "gameOver": "انتهت اللعبة",
   "changeLanguage": "EN"
 }
