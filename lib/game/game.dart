@@ -13,6 +13,7 @@ import 'package:space_fortress_game_package/init.dart';
 
 import '../language_constants.dart';
 import '../models/sessions.dart';
+import '../screens/main_menu.dart';
 import '../widgets/overlays/game_over_menu.dart';
 import '../widgets/overlays/pause_button.dart';
 import 'audio_player_component.dart';
@@ -693,7 +694,9 @@ class SpaceFortressGame extends FlameGame
               friendlyMineLoadAndPlayerActTimesDiffAverage,
           totalPlayerDistance: totalPlayerDistance,
           // assigned_username: SharedPreferencesApp.userName() ?? '',
-          assigned_username: '',
+          assigned_username: integrationInitialized && username != null
+              ? username!
+              : usernameInput.text,
         ).toJson())
         .then((value) {
           
