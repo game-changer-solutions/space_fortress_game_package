@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress_game_package/game/game.dart';
+import 'package:space_fortress_game_package/theme/app_theme.dart';
 import 'package:space_fortress_game_package/widgets/overlays/game_over_menu.dart';
 import 'package:space_fortress_game_package/widgets/overlays/pause_button.dart';
 import 'package:space_fortress_game_package/widgets/overlays/pause_menu.dart';
@@ -13,27 +14,31 @@ class GamePlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _spaceFortress.context = context;
-    return Scaffold(
-      body: WillPopScope(
-        onWillPop: () async => false,
-        child: GameWidget(
-          game: _spaceFortress,
-          initialActiveOverlays: const [PauseButton.id],
-          overlayBuilderMap: {
-            PauseButton.id: (BuildContext context, SpaceFortressGame gameRef) =>
-                PauseButton(
-                  gameRef: gameRef,
-                ),
-            PauseMenu.id: (BuildContext context, SpaceFortressGame gameRef) =>
-                PauseMenu(
-                  gameRef: gameRef,
-                ),
-            GameOverMenu.id:
-                (BuildContext context, SpaceFortressGame gameRef) =>
-                    GameOverMenu(
-                      gameRef: gameRef,
-                    ),
-          },
+    return Theme(
+      data: AppTheme.apptheme,
+      child: Scaffold(
+        body: PopScope(
+          canPop: false,
+          child: GameWidget(
+            game: _spaceFortress,
+            initialActiveOverlays: const [PauseButton.id],
+            overlayBuilderMap: {
+              PauseButton.id:
+                  (BuildContext context, SpaceFortressGame gameRef) =>
+                      PauseButton(
+                        gameRef: gameRef,
+                      ),
+              PauseMenu.id: (BuildContext context, SpaceFortressGame gameRef) =>
+                  PauseMenu(
+                    gameRef: gameRef,
+                  ),
+              GameOverMenu.id:
+                  (BuildContext context, SpaceFortressGame gameRef) =>
+                      GameOverMenu(
+                        gameRef: gameRef,
+                      ),
+            },
+          ),
         ),
       ),
     );
