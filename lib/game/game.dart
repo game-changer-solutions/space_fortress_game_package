@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:math' hide log;
@@ -8,12 +9,9 @@ import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
-import 'package:backendless_sdk/backendless_sdk.dart' as bkl;
 import 'package:space_fortress_game_package/init.dart';
-
 import '../language_constants.dart';
 import '../models/sessions.dart';
-import '../screens/main_menu.dart';
 import '../widgets/overlays/game_over_menu.dart';
 import '../widgets/overlays/pause_button.dart';
 import 'audio_player_component.dart';
@@ -23,9 +21,9 @@ import 'fortress.dart';
 import 'fortress_fire_manager.dart';
 import 'mine.dart';
 import 'package:collection/collection.dart';
-
 import 'move_buttons.dart';
 import 'player.dart';
+import 'package:http/http.dart' as http;
 
 class SpaceFortressGame extends FlameGame
     with TapCallbacks, HasCollisionDetection, DragCallbacks {
@@ -91,6 +89,8 @@ class SpaceFortressGame extends FlameGame
 
   // it is initialized in GamePlay class
   BuildContext? context;
+
+  String? resultId; // for research result relationship
 
   @override
   Future<void> onLoad() async {
@@ -642,12 +642,12 @@ class SpaceFortressGame extends FlameGame
       overlays.remove(PauseButton.id);
       overlays.add(GameOverMenu.id);
       playerDeathTimes = 0;
+
       // send data
-      try {
+      if (integrationInitialized) {
         sendSessionData();
-      } catch (e) {
-        log(e.toString());
       }
+
       return;
     }
     if (outerHexagonShape.containsPoint(player.position) &&
@@ -675,9 +675,39 @@ class SpaceFortressGame extends FlameGame
   }
 
   void sendSessionData() async {
-    await bkl.Backendless.data
-        .of("SpaceFortressSessions")
-        .save(SpaceFortressSessions(
+    try {
+      if (resultId == null) {
+        var uri = Uri.parse('${kBaseUrl}results/bulk');
+        var request = http.MultipartRequest('POST', uri);
+
+        // Add authorization header
+        request.headers['Authorization'] = 'Bearer $token';
+
+        // Prepare the request body
+        var requestBody = {
+          "research": researchId,
+        };
+
+        // Convert the request body to JSON and add it to the request
+        var jsonBody = json.encode(requestBody);
+        request.fields['data'] = jsonBody;
+
+        log(request.fields.toString());
+
+        var streamedResponse = await request.send();
+        var response = await http.Response.fromStream(streamedResponse);
+
+        log(response.body);
+        var responseBody = json.decode(response.body);
+        if (response.statusCode == 200) {
+          resultId = responseBody["documentId"];
+        } else {
+          log("Error! ${responseBody["error"]["message"]} || Status Code: ${response.statusCode}");
+        }
+      }
+
+      if (resultId != null) {
+        final session = SpaceFortressSessions(
           playerPoints: playerPoints,
           velocityScore: velocityScore,
           controlScore: controlScore,
@@ -693,29 +723,31 @@ class SpaceFortressGame extends FlameGame
           friendlyMineLoadAndPlayerActTimesDiffAverage:
               friendlyMineLoadAndPlayerActTimesDiffAverage,
           totalPlayerDistance: totalPlayerDistance,
-          // assigned_username: SharedPreferencesApp.userName() ?? '',
-          assigned_username: integrationInitialized && username != null
-              ? username!
-              : usernameInput.text,
-        ).toJson())
-        .then((value) {
-      if (integrationInitialized && userId != null) {
-        bkl.Backendless.data.of("SpaceFortressSessions").addRelation(
-            value!["objectId"], "userId",
-            childrenObjectIds: [userId!]);
-      }
+          resultId: resultId,
+        );
 
-      if (integrationInitialized && researchId != null) {
-        bkl.Backendless.data.of("SpaceFortressSessions").addRelation(
-            value!["objectId"], "researchId",
-            childrenObjectIds: [researchId!]);
+        var headers = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        };
+        var request =
+            http.Request('POST', Uri.parse('${kBaseUrl}space-fortresses'));
+        request.body = json.encode({"data": session.toJson()});
+        request.headers.addAll(headers);
+
+        http.StreamedResponse response = await request.send();
+
+        var responseBody = json.decode(await response.stream.bytesToString());
+        log(responseBody.toString());
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          log("Session Created Successfully");
+        } else {
+          log("Error! ${responseBody["error"]["message"]} || Status Code: ${response.statusCode}");
+        }
       }
-    })
-        // ignore: body_might_complete_normally_catch_error
-        .catchError((error, stackTrace) {
-      log("Error: ${error.toString()}");
-    });
-    debugPrint("Session created!");
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   void generateMines() {
