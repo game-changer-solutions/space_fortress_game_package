@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'dart:math' hide log;
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -8,6 +7,7 @@ import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:space_fortress_game_package/init.dart';
 import '../language_constants.dart';
@@ -98,7 +98,7 @@ class SpaceFortressGame extends FlameGame
       await images.loadAll(["simpleSpace_tilesheet@2.png", "joystick.png"]);
 
       audioPlayerComponent = AudioPlayerComponent();
-      if (!Platform.isIOS) {
+      if (defaultTargetPlatform != TargetPlatform.iOS) {
         add(audioPlayerComponent);
       }
 
