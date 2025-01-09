@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:space_fortress_game_package/game/settings.dart';
-import 'package:space_fortress_game_package/language_constants.dart';
+import '../game/settings.dart';
+import '../language_constants.dart';
 
 import '../theme/app_theme.dart';
 

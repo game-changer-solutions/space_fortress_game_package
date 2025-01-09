@@ -1,10 +1,10 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'package:space_fortress_game_package/game/game.dart';
-import 'package:space_fortress_game_package/theme/app_theme.dart';
-import 'package:space_fortress_game_package/widgets/overlays/game_over_menu.dart';
-import 'package:space_fortress_game_package/widgets/overlays/pause_button.dart';
-import 'package:space_fortress_game_package/widgets/overlays/pause_menu.dart';
+import '../game/game.dart';
+import '../theme/app_theme.dart';
+import '../widgets/overlays/game_over_menu.dart';
+import '../widgets/overlays/pause_button.dart';
+import '../widgets/overlays/pause_menu.dart';
 
 class GamePlay extends StatelessWidget {
   GamePlay({Key? key}) : super(key: key);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../game/game.dart';
 import '../../language_constants.dart';
 import '../../screens/main_menu.dart';
-import '../../widgets/overlays/pause_button.dart';
+import 'pause_button.dart';
 
 class GameOverMenu extends StatelessWidget {
   static const String id = "GameOverMenu";
