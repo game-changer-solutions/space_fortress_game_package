@@ -9,7 +9,8 @@ import 'package:flame/parallax.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:space_fortress_game_package/init.dart';
+import 'package:flutter/services.dart';
+import '../init.dart';
 import '../language_constants.dart';
 import '../models/sessions.dart';
 import '../widgets/overlays/game_over_menu.dart';
@@ -26,7 +27,7 @@ import 'player.dart';
 import 'package:http/http.dart' as http;
 
 class SpaceFortressGame extends FlameGame
-    with TapCallbacks, HasCollisionDetection, DragCallbacks {
+    with TapCallbacks, HasCollisionDetection, DragCallbacks, KeyboardEvents {
   late SpriteSheet spriteSheet;
   late Player player;
   late Vector2 playerPosition;
@@ -167,77 +168,7 @@ class SpaceFortressGame extends FlameGame
           right: 40,
           bottom: 50,
         ),
-        onPressed: () {
-          if (playerCanFire) {
-            if (mineOnScreen) {
-              player.canShoot = !mine.isFoe;
-            } else {
-              player.canShoot = true;
-            }
-            if (player.canShoot) {
-              Bullet bullet = Bullet(
-                name: "playerBullet",
-                sprite: spriteSheet.getSpriteById(28),
-                size: Vector2(64, 64),
-                position: player.position.clone(),
-                playerAngle: player.angle,
-              );
-              bullet.anchor = Anchor.center;
-              add(bullet);
-              playerShots -= 1;
-              if (playerShots < 0) {
-                playerShots = 0;
-                playerPoints -= 3;
-              }
-              audioPlayerComponent.playSfx("laserSmall.ogg");
-
-              fireTimes.add(DateTime.now());
-              List<int> fireTimesDiff = [];
-              if (fireTimes.length >= 2) {
-                for (var i = 0; i < fireTimes.length - 1; i++) {
-                  fireTimesDiff.add(fireTimes[i + 1]
-                      .difference(fireTimes[i])
-                      .inMilliseconds
-                      .abs());
-                }
-                fireAverage = fireTimesDiff.average;
-                debugPrint("fireAverage $fireAverage");
-              }
-
-              calcMineLoadAndPlayerActTimesDiffAverage();
-            } else if (mine.isFoe) {
-              if (foeMineFinish < 2) {
-                if (foeMinefinishDecreaseTime.isEmpty) {
-                  foeMineFinish += 1;
-                }
-                foeMinefinishDecreaseTime.add(DateTime.now());
-                if (foeMinefinishDecreaseTime.length >= 2) {
-                  if (foeMinefinishDecreaseTime[
-                              foeMinefinishDecreaseTime.length - 1]
-                          .difference(foeMinefinishDecreaseTime[
-                              foeMinefinishDecreaseTime.length - 2])
-                          .inMilliseconds <
-                      250) {
-                    foeMineFinish += 1;
-                    if (foeMineFinish == 2) {
-                      playerPoints += 30;
-                      if (inOuterHexagon || inInnerHexagon) {
-                        controlScore += 30;
-                      } else if (outOfHexagons) {
-                        controlScore += (30 * 0.5).toInt();
-                      }
-                      mine.destroy();
-                    }
-                  }
-                }
-              } else {
-                foeMineFinish = 0;
-                foeMinefinishDecreaseTime.clear();
-              }
-              calcMineLoadAndPlayerActTimesDiffAverage();
-            }
-          }
-        },
+        onPressed: _onPressedFireButton,
       );
       add(fireButton);
 
@@ -245,38 +176,8 @@ class SpaceFortressGame extends FlameGame
         sprite: spriteSheet.getSpriteById(0),
         position: Vector2(110, size.y - 130),
         size: Vector2(80, 80),
-        onTDown: () {
-          // player.moveAngel =
-          //     Vector2(sin(player.angle), -cos(player.angle)).clone();
-          player.move = true;
-
-          final double newAngle = player.angle;
-          if (newAngle >= 0 && newAngle < pi / 2) {
-            player.newAngleDir = 0;
-          } else if (newAngle >= pi / 2 && newAngle < pi) {
-            player.newAngleDir = 1;
-          } else if (newAngle >= pi && newAngle < (3 * pi) / 2) {
-            player.newAngleDir = 2;
-          } else if (newAngle >= (3 * pi) / 2 && newAngle < 2 * pi) {
-            player.newAngleDir = 3;
-          }
-          player.onTurbo = true;
-
-          calcMineLoadAndPlayerActTimesDiffAverage();
-        },
-        onTUp: () {
-          final double oldAngle = player.angle;
-          if (oldAngle >= 0 && oldAngle < pi / 2) {
-            player.oldAngleDir = 0;
-          } else if (oldAngle >= pi / 2 && oldAngle < pi) {
-            player.oldAngleDir = 1;
-          } else if (oldAngle >= pi && oldAngle < (3 * pi) / 2) {
-            player.oldAngleDir = 2;
-          } else if (oldAngle >= (3 * pi) / 2 && oldAngle < 2 * pi) {
-            player.oldAngleDir = 3;
-          }
-          player.onTurbo = false;
-        },
+        onTDown: _onTapDownMoveButton,
+        onTUp: _onTapUpMoveButton,
       );
       add(moveButton);
 
@@ -284,49 +185,8 @@ class SpaceFortressGame extends FlameGame
         sprite: spriteSheet.getSpriteById(0),
         position: Vector2(180, size.y - 70),
         size: Vector2(80, 80),
-        onTDown: () {
-          player.rotateRight = true;
-          calcMineLoadAndPlayerActTimesDiffAverage();
-
-          if (pointsBonusFinish < 2) {
-            if (pointsBonusFinishDecreaseTime.isEmpty) {
-              pointsBonusFinish += 1;
-            }
-            pointsBonusFinishDecreaseTime.add(DateTime.now());
-            if (pointsBonusFinishDecreaseTime.length >= 2) {
-              if (pointsBonusFinishDecreaseTime[
-                          pointsBonusFinishDecreaseTime.length - 1]
-                      .difference(pointsBonusFinishDecreaseTime[
-                          pointsBonusFinishDecreaseTime.length - 2])
-                      .inMilliseconds <
-                  250) {
-                pointsBonusFinish += 1;
-                if (pointsBonusFinish == 2) {
-                  if (bonuses.length >= 2) {
-                    if (bonuses[bonuses.length - 1] == "\$" &&
-                        bonuses[bonuses.length - 2] == "\$") {
-                      playerPoints += 100;
-                      if (inOuterHexagon || inInnerHexagon) {
-                        controlScore += 100;
-                      } else if (outOfHexagons) {
-                        controlScore += (100 * 0.5).toInt();
-                      }
-                      bonusTaken++;
-                      audioPlayerComponent.playSfx("success_bell-6776.mp3");
-                    }
-                    bonuses.clear();
-                  }
-                }
-              }
-            }
-          } else {
-            pointsBonusFinish = 0;
-            pointsBonusFinishDecreaseTime.clear();
-          }
-        },
-        onTUp: () {
-          player.rotateRight = false;
-        },
+        onTDown: _onTapDownRotateRightButton,
+        onTUp: _onTapUpRotateRightButton,
       );
       rotateRightButton.angle = -4.7;
       add(rotateRightButton);
@@ -335,44 +195,8 @@ class SpaceFortressGame extends FlameGame
         sprite: spriteSheet.getSpriteById(0),
         position: Vector2(40, size.y - 70),
         size: Vector2(80, 80),
-        onTDown: () {
-          player.rotateLeft = true;
-          calcMineLoadAndPlayerActTimesDiffAverage();
-
-          if (fireBonusFinish < 2) {
-            if (fireBonusFinishDecreaseTime.isEmpty) {
-              fireBonusFinish += 1;
-            }
-            fireBonusFinishDecreaseTime.add(DateTime.now());
-            if (fireBonusFinishDecreaseTime.length >= 2) {
-              if (fireBonusFinishDecreaseTime[
-                          fireBonusFinishDecreaseTime.length - 1]
-                      .difference(fireBonusFinishDecreaseTime[
-                          fireBonusFinishDecreaseTime.length - 2])
-                      .inMilliseconds <
-                  250) {
-                fireBonusFinish += 1;
-                if (fireBonusFinish == 2) {
-                  if (bonuses.length >= 2) {
-                    if (bonuses[bonuses.length - 1] == "\$" &&
-                        bonuses[bonuses.length - 2] == "\$") {
-                      playerShots += 50;
-                      bonusTaken++;
-                      audioPlayerComponent.playSfx("success_bell-6776.mp3");
-                    }
-                    bonuses.clear();
-                  }
-                }
-              }
-            }
-          } else {
-            fireBonusFinish = 0;
-            fireBonusFinishDecreaseTime.clear();
-          }
-        },
-        onTUp: () {
-          player.rotateLeft = false;
-        },
+        onTDown: _onTapDownRotateLeftButton,
+        onTUp: _onTapUpRotateLeftButton,
       );
       rotateLeftButton.angle = 4.7;
       add(rotateLeftButton);
@@ -540,6 +364,256 @@ class SpaceFortressGame extends FlameGame
     }
   }
 
+  @override
+  KeyEventResult onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
+    final isKeyDown = event is KeyDownEvent;
+    final isKeyUp = event is KeyUpEvent;
+
+    // final isSpace = keysPressed.contains(LogicalKeyboardKey.space);
+
+    // if (isSpace && isKeyDown) {
+    //   if (keysPressed.contains(LogicalKeyboardKey.altLeft) ||
+    //       keysPressed.contains(LogicalKeyboardKey.altRight)) {
+    //     this.shootHarder();
+    //   } else {
+    //     this.shoot();
+    //   }
+    //   return KeyEventResult.handled;
+    // }
+
+    if (event.logicalKey == LogicalKeyboardKey.space) {
+      if (isKeyDown) {
+        _onPressedFireButton();
+        return KeyEventResult.handled;
+      }
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (isKeyDown) {
+        _onTapDownMoveButton();
+        return KeyEventResult.handled;
+      }
+      if (isKeyUp) {
+        _onTapUpMoveButton();
+        return KeyEventResult.handled;
+      }
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      if (isKeyDown) {
+        _onTapDownRotateLeftButton();
+        return KeyEventResult.handled;
+      }
+      if (isKeyUp) {
+        _onTapUpRotateLeftButton();
+        return KeyEventResult.handled;
+      }
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      if (isKeyDown) {
+        _onTapDownRotateRightButton();
+        return KeyEventResult.handled;
+      }
+      if (isKeyUp) {
+        _onTapUpRotateRightButton();
+        return KeyEventResult.handled;
+      }
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  _onTapUpRotateLeftButton() {
+    player.rotateLeft = false;
+  }
+
+  _onTapDownRotateLeftButton() {
+    player.rotateLeft = true;
+    calcMineLoadAndPlayerActTimesDiffAverage();
+
+    if (fireBonusFinish < 2) {
+      if (fireBonusFinishDecreaseTime.isEmpty) {
+        fireBonusFinish += 1;
+      }
+      fireBonusFinishDecreaseTime.add(DateTime.now());
+      if (fireBonusFinishDecreaseTime.length >= 2) {
+        if (fireBonusFinishDecreaseTime[fireBonusFinishDecreaseTime.length - 1]
+                .difference(fireBonusFinishDecreaseTime[
+                    fireBonusFinishDecreaseTime.length - 2])
+                .inMilliseconds <
+            250) {
+          fireBonusFinish += 1;
+          if (fireBonusFinish == 2) {
+            if (bonuses.length >= 2) {
+              if (bonuses[bonuses.length - 1] == "\$" &&
+                  bonuses[bonuses.length - 2] == "\$") {
+                playerShots += 50;
+                bonusTaken++;
+                audioPlayerComponent.playSfx("success_bell-6776.mp3");
+              }
+              bonuses.clear();
+            }
+          }
+        }
+      }
+    } else {
+      fireBonusFinish = 0;
+      fireBonusFinishDecreaseTime.clear();
+    }
+  }
+
+  _onTapUpRotateRightButton() {
+    player.rotateRight = false;
+  }
+
+  _onTapDownRotateRightButton() {
+    player.rotateRight = true;
+    calcMineLoadAndPlayerActTimesDiffAverage();
+
+    if (pointsBonusFinish < 2) {
+      if (pointsBonusFinishDecreaseTime.isEmpty) {
+        pointsBonusFinish += 1;
+      }
+      pointsBonusFinishDecreaseTime.add(DateTime.now());
+      if (pointsBonusFinishDecreaseTime.length >= 2) {
+        if (pointsBonusFinishDecreaseTime[
+                    pointsBonusFinishDecreaseTime.length - 1]
+                .difference(pointsBonusFinishDecreaseTime[
+                    pointsBonusFinishDecreaseTime.length - 2])
+                .inMilliseconds <
+            250) {
+          pointsBonusFinish += 1;
+          if (pointsBonusFinish == 2) {
+            if (bonuses.length >= 2) {
+              if (bonuses[bonuses.length - 1] == "\$" &&
+                  bonuses[bonuses.length - 2] == "\$") {
+                playerPoints += 100;
+                if (inOuterHexagon || inInnerHexagon) {
+                  controlScore += 100;
+                } else if (outOfHexagons) {
+                  controlScore += (100 * 0.5).toInt();
+                }
+                bonusTaken++;
+                audioPlayerComponent.playSfx("success_bell-6776.mp3");
+              }
+              bonuses.clear();
+            }
+          }
+        }
+      }
+    } else {
+      pointsBonusFinish = 0;
+      pointsBonusFinishDecreaseTime.clear();
+    }
+  }
+
+  _onTapUpMoveButton() {
+    final double oldAngle = player.angle;
+    if (oldAngle >= 0 && oldAngle < pi / 2) {
+      player.oldAngleDir = 0;
+    } else if (oldAngle >= pi / 2 && oldAngle < pi) {
+      player.oldAngleDir = 1;
+    } else if (oldAngle >= pi && oldAngle < (3 * pi) / 2) {
+      player.oldAngleDir = 2;
+    } else if (oldAngle >= (3 * pi) / 2 && oldAngle < 2 * pi) {
+      player.oldAngleDir = 3;
+    }
+    player.onTurbo = false;
+  }
+
+  _onTapDownMoveButton() {
+    // player.moveAngel =
+    //     Vector2(sin(player.angle), -cos(player.angle)).clone();
+    player.move = true;
+
+    final double newAngle = player.angle;
+    if (newAngle >= 0 && newAngle < pi / 2) {
+      player.newAngleDir = 0;
+    } else if (newAngle >= pi / 2 && newAngle < pi) {
+      player.newAngleDir = 1;
+    } else if (newAngle >= pi && newAngle < (3 * pi) / 2) {
+      player.newAngleDir = 2;
+    } else if (newAngle >= (3 * pi) / 2 && newAngle < 2 * pi) {
+      player.newAngleDir = 3;
+    }
+    player.onTurbo = true;
+
+    calcMineLoadAndPlayerActTimesDiffAverage();
+  }
+
+  _onPressedFireButton() {
+    if (playerCanFire) {
+      if (mineOnScreen) {
+        player.canShoot = !mine.isFoe;
+      } else {
+        player.canShoot = true;
+      }
+      if (player.canShoot) {
+        Bullet bullet = Bullet(
+          name: "playerBullet",
+          sprite: spriteSheet.getSpriteById(28),
+          size: Vector2(64, 64),
+          position: player.position.clone(),
+          playerAngle: player.angle,
+        );
+        bullet.anchor = Anchor.center;
+        add(bullet);
+        playerShots -= 1;
+        if (playerShots < 0) {
+          playerShots = 0;
+          playerPoints -= 3;
+        }
+        audioPlayerComponent.playSfx("laserSmall.ogg");
+
+        fireTimes.add(DateTime.now());
+        List<int> fireTimesDiff = [];
+        if (fireTimes.length >= 2) {
+          for (var i = 0; i < fireTimes.length - 1; i++) {
+            fireTimesDiff.add(
+                fireTimes[i + 1].difference(fireTimes[i]).inMilliseconds.abs());
+          }
+          fireAverage = fireTimesDiff.average;
+          debugPrint("fireAverage $fireAverage");
+        }
+
+        calcMineLoadAndPlayerActTimesDiffAverage();
+      } else if (mine.isFoe) {
+        if (foeMineFinish < 2) {
+          if (foeMinefinishDecreaseTime.isEmpty) {
+            foeMineFinish += 1;
+          }
+          foeMinefinishDecreaseTime.add(DateTime.now());
+          if (foeMinefinishDecreaseTime.length >= 2) {
+            if (foeMinefinishDecreaseTime[foeMinefinishDecreaseTime.length - 1]
+                    .difference(foeMinefinishDecreaseTime[
+                        foeMinefinishDecreaseTime.length - 2])
+                    .inMilliseconds <
+                250) {
+              foeMineFinish += 1;
+              if (foeMineFinish == 2) {
+                playerPoints += 30;
+                if (inOuterHexagon || inInnerHexagon) {
+                  controlScore += 30;
+                } else if (outOfHexagons) {
+                  controlScore += (30 * 0.5).toInt();
+                }
+                mine.destroy();
+              }
+            }
+          }
+        } else {
+          foeMineFinish = 0;
+          foeMinefinishDecreaseTime.clear();
+        }
+        calcMineLoadAndPlayerActTimesDiffAverage();
+      }
+    }
+  }
+
   void calcMineLoadAndPlayerActTimesDiffAverage() {
     if (mineOnScreen) {
       if (!mine.isPlayerAct) {
@@ -686,6 +760,10 @@ class SpaceFortressGame extends FlameGame
         // Prepare the request body
         var requestBody = {
           "research": researchId,
+          "platform": defaultTargetPlatform == TargetPlatform.iOS ||
+                  defaultTargetPlatform == TargetPlatform.android
+              ? 'mobile'
+              : 'web',
         };
 
         // Convert the request body to JSON and add it to the request

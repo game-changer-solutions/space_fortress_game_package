@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:space_fortress_game_package/init.dart';
-import 'package:space_fortress_game_package/language_constants.dart';
-import 'package:space_fortress_game_package/main.dart';
-import 'package:space_fortress_game_package/screens/game_play.dart';
-import 'package:space_fortress_game_package/screens/settings_menu.dart';
-import 'package:space_fortress_game_package/theme/app_theme.dart';
-import 'package:space_fortress_game_package/widgets/snack_bar.dart';
+import '../init.dart';
+import '../language_constants.dart';
+import '../main.dart';
+import 'game_play.dart';
+import 'settings_menu.dart';
+import '../theme/app_theme.dart';
+import '../widgets/snack_bar.dart';
 
 String getRandomChar() {
   return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split("")[Random().nextInt(25)];
