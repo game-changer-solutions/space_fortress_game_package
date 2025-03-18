@@ -1,9 +1,9 @@
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'l10n/app_localizations.dart';
 import 'language_constants.dart';
 import 'screens/main_menu.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 
 void main() {
