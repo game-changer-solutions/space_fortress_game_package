@@ -762,8 +762,11 @@ class SpaceFortressGame extends FlameGame
           "research": researchId,
           "platform": defaultTargetPlatform == TargetPlatform.iOS ||
                   defaultTargetPlatform == TargetPlatform.android
-              ? 'mobile'
+              ? kIsWeb
+                  ? "web-mobile"
+                  : 'mobile'
               : 'web',
+          "resultDisplayName": resultDisplayName ?? "",
         };
 
         // Convert the request body to JSON and add it to the request

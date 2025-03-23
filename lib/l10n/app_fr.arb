@@ -1,0 +1,21 @@
+{
+  "username": "Entrez le nom d'utilisateur",
+  "usernameRequiredField": "Veuillez entrer un nom d'utilisateur !",
+  "play": "Jouer",
+  "settings": "Paramètres",
+  "codeMines": "Le code des mines ennemies est",
+  "soundsEffects": "Effets sonores",
+  "points": "Points",
+  "shots": "Tirs",
+  "vlcty": "VITSS",
+  "iff": "IFF",
+  "cntrl": "CTRL",
+  "intrvl": "INTRV",
+  "speed": "VITESSE",
+  "paused": "Pause",
+  "resume": "Reprendre",
+  "restart": "Recommencer",
+  "exit": "Quitter",
+  "gameOver": "Partie Terminée",
+  "changeLanguage": "EN"
+}
